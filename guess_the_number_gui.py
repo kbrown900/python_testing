@@ -11,19 +11,27 @@ custom_font = None
 class GuessTheNumberApp:
     def __init__(self, master):
         global custom_font
+        
         # Initialize the main window and set its title
         self.master = master
         master.title("Guess the Number")
         master.geometry(style.window_size)
-        
-        # Apply background color from style_config.py
-        master.configure(bg=style.bg_color)
+        self.frame = tk.Frame(master)
+        self.frame.pack(pady=10)
 
-        # Create a style object to style ttk widgets
+        # Difficulty options
+        self.difficulty_var = tk.StringVar(value="Medium")  # Default difficulty
+        self.difficulty_label = tk.Label(self.frame, text="Select Difficulty:")
+        self.difficulty_label.pack(pady=(0, 5))
+
+        self.difficulty_menu = tk.OptionMenu(self.frame, self.difficulty_var, "Easy", "Medium", "Hard", 
+                                              command=lambda _: self.reset_game())
+        self.difficulty_menu.pack(pady=5)
+        
+        #Configure Style
+        master.configure(bg=style.bg_color)
         self.style = ttk.Style()
         self.style.theme_use('default')
-
-        # Configure button styles using the method from style_config
         style.configure_button_style(self.style)
 
         # Create a frame and apply padding
@@ -46,7 +54,7 @@ class GuessTheNumberApp:
 
         self.entry.bind('<Return>', lambda event: self.check_guess())
 
-        # Modern flat buttons with color styling and rounded corners
+        # Define Buttons
         self.guess_button = ttk.Button(self.frame, text="Guess", style="Rounded.TButton", command=self.check_guess)
         self.guess_button.pack(pady=5)
 
@@ -57,46 +65,71 @@ class GuessTheNumberApp:
         self.result_label = tk.Label(self.frame, text="", font=custom_font, fg=style.text_color, bg=style.bg_color)
         self.result_label.pack(pady=5)
 
+        # Attempts Label
         self.attempts_label = tk.Label(self.frame, text=f"Attempts: {self.attempts}/{self.max_attempts}", font=custom_font, fg=style.text_color, bg=style.bg_color)
         self.attempts_label.pack(pady=10)
 
         self.entry.focus_set()
 
-    # Method to check the player's guess
-    def check_guess(self):
-        guess = self.entry.get()  # Get the guess from the entry box
+        # Set default values based on difficulty
+        self.set_difficulty()
 
-        # Validate if the input is a digit
+    def set_difficulty(self):
+        # Dictionary to hold difficulty settings
+        difficulty_settings = {
+            "Easy": (1, 50, 10),    # (min, max, attempts)
+            "Medium": (1, 100, 7),
+            "Hard": (1, 200, 5)
+        }
+
+        # Get the current difficulty level
+        difficulty = self.difficulty_var.get()
+        
+        # Unpack the settings for the current difficulty level
+        min_num, max_num, max_attempts = difficulty_settings[difficulty]
+        
+        # Generate the number to guess
+        self.number_to_guess = generate_number(min_num, max_num)
+
+        # Update the maximum attempts and the label text
+        self.max_attempts = max_attempts
+        self.attempts = 0  # Reset attempts
+        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
+
+        # Update the guessing instruction label
+        self.label.config(text=f"Guess a number between {min_num} and {max_num}:") 
+
+
+    def check_guess(self):
+        guess = self.entry.get()
+        
+        #input check
         if not guess.isdigit():
             self.result_label.config(text="Please enter a valid number.")
             return
+        
+        guess = int(guess)
+        self.attempts += 1
+        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
 
-        guess = int(guess)  # Convert the input to an integer
-        self.attempts += 1  # Increment the number of attempts
-        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")  # Update attempts label
-
-        # Check the player's guess against the generated number
         result = check_guess(guess, self.number_to_guess)
-        self.result_label.config(text=result)  # Update the result label based on guess accuracy
+        self.result_label.config(text=result)
 
-        # If the guess is correct, congratulate the player and disable further inputs
         if result == "Correct!":
             self.result_label.config(text=f"Congratulations! You've guessed the number in {self.attempts} attempts!")
-            self.entry.config(state='disabled')  # Disable entry to stop further guesses
+            self.entry.config(state='disabled')
 
-        # If the maximum attempts are reached and the player hasn't guessed correctly
         if self.attempts >= self.max_attempts and result != "Correct!":
             self.result_label.config(text=f"Sorry, you've used all attempts. The number was {self.number_to_guess}.")
-            self.entry.config(state='disabled')  # Disable entry after all attempts are used
+            self.entry.config(state='disabled')
 
-    # Method to reset the game
+    #Method to reset game
     def reset_game(self):
-        self.number_to_guess = generate_number()  # Generate a new number to guess
-        self.attempts = 0  # Reset the attempt counter
-        self.entry.config(state='normal')  # Re-enable the entry box
-        self.entry.delete(0, tk.END)  # Clear the entry box for new input
-        self.result_label.config(text="")  # Clear the result label
-        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")  # Reset the attempts label
+        self.set_difficulty()  # Set number and attempts based on difficulty
+        self.entry.config(state='normal')
+        self.entry.delete(0, tk.END)  # Clear the entry box
+        self.result_label.config(text="")
+        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
 
 # Main program execution
 if __name__ == "__main__":

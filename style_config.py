@@ -7,7 +7,7 @@ bg_color = "#787878"  # Background color
 text_color = "#000000"  # Text color
 button_color = "#4CAF50"  # Button background color
 button_text_color = "#FFFFFF"  # Button text color
-window_size = "400x300" # Set window dimensions
+window_size = "400x400" # Set window dimensions
 
 # Button styles
 def configure_button_style(style):
