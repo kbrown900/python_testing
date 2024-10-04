@@ -35,7 +35,6 @@ class GuessTheNumberApp:
         self.style.theme_use('default')
         style.configure_button_style(self.style)
 
-
         # Create a frame and apply padding
         self.frame = tk.Frame(master, bg=style.bg_color)
         self.frame.pack(pady=20)
@@ -71,6 +70,7 @@ class GuessTheNumberApp:
         self.attempts_label = tk.Label(self.frame, text=f"Attempts: {self.attempts}/{self.max_attempts}", font=custom_font, fg=style.text_color, bg=style.bg_color)
         self.attempts_label.pack(pady=10)
 
+        #Set UI focus
         self.entry.focus_set()
 
         # Set default values based on difficulty
