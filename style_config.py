@@ -7,7 +7,10 @@ bg_color = "#787878"  # Background color
 text_color = "#000000"  # Text color
 button_color = "#4CAF50"  # Button background color
 button_text_color = "#FFFFFF"  # Button text color
-window_size = "400x300" # Set window dimensions
+window_size = "400x400" # Set window dimensions
+font_style = ("Helvetica", 14)  # Default font style
+dropdown_font = ("Helvetica", 12)  # Font style for the dropdown
+dropdown_bg_color = "#d3d3d3"  # Background color for dropdown
 
 # Button styles
 def configure_button_style(style):

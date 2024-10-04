@@ -1,8 +1,8 @@
 import random
 
-def generate_number():
+def generate_number(min_value=1, max_value=100):
     """Generate a random number between 1 and 100."""
-    return random.randint(1, 100)
+    return random.randint(min_value, max_value)
 
 def check_guess(guess, number_to_guess):
     """Check the player's guess against the number to guess."""
