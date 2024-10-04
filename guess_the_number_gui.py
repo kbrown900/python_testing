@@ -21,11 +21,12 @@ class GuessTheNumberApp:
 
         # Difficulty options
         self.difficulty_var = tk.StringVar(value="Medium")  # Default difficulty
-        self.difficulty_label = tk.Label(self.frame, text="Select Difficulty:")
+        self.difficulty_label = tk.Label(self.frame, text="Select Difficulty:", font=style.font_style, fg=style.text_color, bg=style.bg_color)
         self.difficulty_label.pack(pady=(0, 5))
-
-        self.difficulty_menu = tk.OptionMenu(self.frame, self.difficulty_var, "Easy", "Medium", "Hard", 
-                                              command=lambda _: self.reset_game())
+        self.difficulty_menu = ttk.Combobox(self.frame, textvariable=self.difficulty_var, 
+                                             values=["Easy", "Medium", "Hard"], 
+                                             font=style.dropdown_font)
+        self.difficulty_menu.bind("<<ComboboxSelected>>", lambda _: self.set_difficulty())
         self.difficulty_menu.pack(pady=5)
         
         #Configure Style
@@ -33,6 +34,7 @@ class GuessTheNumberApp:
         self.style = ttk.Style()
         self.style.theme_use('default')
         style.configure_button_style(self.style)
+
 
         # Create a frame and apply padding
         self.frame = tk.Frame(master, bg=style.bg_color)
@@ -75,30 +77,27 @@ class GuessTheNumberApp:
         self.set_difficulty()
 
     def set_difficulty(self):
-        # Dictionary to hold difficulty settings
-        difficulty_settings = {
-            "Easy": (1, 50, 10),    # (min, max, attempts)
-            "Medium": (1, 100, 7),
-            "Hard": (1, 200, 5)
-        }
-
-        # Get the current difficulty level
         difficulty = self.difficulty_var.get()
-        
-        # Unpack the settings for the current difficulty level
-        min_num, max_num, max_attempts = difficulty_settings[difficulty]
-        
-        # Generate the number to guess
-        self.number_to_guess = generate_number(min_num, max_num)
+        if difficulty == "Easy":
+            self.label.config(text="Guess a number between 1 and 50:")
+            self.number_to_guess = generate_number(1, 50)
+            max_num = 50
+            self.max_attempts = 10
+        elif difficulty == "Medium":
+            self.label.config(text="Guess a number between 1 and 100:")
+            self.number_to_guess = generate_number(1, 100)
+            max_num = 100
+            self.max_attempts = 7
+        elif difficulty == "Hard":
+            self.label.config(text="Guess a number between 1 and 200:")
+            self.number_to_guess = generate_number(1, 200)
+            max_num = 200
+            self.max_attempts = 5
 
-        # Update the maximum attempts and the label text
-        self.max_attempts = max_attempts
-        self.attempts = 0  # Reset attempts
+        # Reset attempts and update the attempts label
+        self.attempts = 0
         self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
-
-        # Update the guessing instruction label
-        self.label.config(text=f"Guess a number between {min_num} and {max_num}:") 
-
+        self.entry.focus_set()
 
     def check_guess(self):
         guess = self.entry.get()
@@ -123,13 +122,32 @@ class GuessTheNumberApp:
             self.result_label.config(text=f"Sorry, you've used all attempts. The number was {self.number_to_guess}.")
             self.entry.config(state='disabled')
 
-    #Method to reset game
     def reset_game(self):
-        self.set_difficulty()  # Set number and attempts based on difficulty
+        # Get the current difficulty from the dropdown
+        difficulty = self.difficulty_var.get()
+
+         # Set the number range and max attempts based on the current difficulty
+        if difficulty == "Easy":
+            self.number_to_guess = generate_number(1, 50)
+            self.max_attempts = 10
+        elif difficulty == "Medium":
+            self.number_to_guess = generate_number(1, 100)
+            self.max_attempts = 7
+        elif difficulty == "Hard":
+            self.number_to_guess = generate_number(1, 200)
+            self.max_attempts = 5
+
+    # Reset attempts
+        self.attempts = 0
+        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
+
+    # Clear entry box and reset result label
         self.entry.config(state='normal')
         self.entry.delete(0, tk.END)  # Clear the entry box
-        self.result_label.config(text="")
-        self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
+        self.result_label.config(text="")  # Clear the result label
+
+    # Optionally, you can set focus back to the entry field
+        self.entry.focus_set()
 
 # Main program execution
 if __name__ == "__main__":
