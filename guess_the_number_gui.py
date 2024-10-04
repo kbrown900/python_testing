@@ -1,12 +1,12 @@
 import tkinter as tk
-import random
+from game_logic import generate_number, check_guess
 
 class GuessTheNumberApp:
     def __init__(self, master):
         self.master = master
         master.title("Guess the Number")
 
-        self.number_to_guess = random.randint(1, 100)
+        self.number_to_guess = generate_number()
         self.attempts = 0
         self.max_attempts = 10
 
@@ -24,7 +24,7 @@ class GuessTheNumberApp:
 
     def check_guess(self):
         guess = self.entry.get()
-        
+
         if not guess.isdigit():
             self.result_label.config(text="Please enter a valid number.")
             return
@@ -32,15 +32,14 @@ class GuessTheNumberApp:
         guess = int(guess)
         self.attempts += 1
 
-        if guess < self.number_to_guess:
-            self.result_label.config(text="Too low! Try again.")
-        elif guess > self.number_to_guess:
-            self.result_label.config(text="Too high! Try again.")
-        else:
-            self.result_label.config(text=f"Congratulations! You've guessed the number in {self.attempts} attempts!")
-            self.entry.config(state='disabled')  # Disable input after correct guess
+        result = check_guess(guess, self.number_to_guess)
+        self.result_label.config(text=result)
 
-        if self.attempts >= self.max_attempts and guess != self.number_to_guess:
+        if result == "Correct!":
+            self.result_label.config(text=f"Congratulations! You've guessed the number in {self.attempts} attempts!")
+            self.entry.config(state='disabled')
+
+        if self.attempts >= self.max_attempts and result != "Correct!":
             self.result_label.config(text=f"Sorry, you've used all attempts. The number was {self.number_to_guess}.")
             self.entry.config(state='disabled')
 
