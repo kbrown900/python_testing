@@ -3,15 +3,15 @@ import random
 def guess_the_number():
     #Step 1: Generate a random number between 1 and 100
     number_to_guess = random.randint(1,100)
-    attemps = 0
+    attempts = 0
     max_attempts = 10
 
     print("Welcom to Guess the Number")
     print("I have selected a number between 1 and 100.")
-    print("You have {max_attempts} attempts to guess it.")
+    print(f"You have {max_attempts} attempts to guess it.")
 
     #Step 2: Start the guessing loop
-    while attemps < max_attempts:
+    while attempts < max_attempts:
         #Step 3: Get user input
         guess = input("Enter your guess: ")
 
