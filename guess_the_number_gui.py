@@ -44,6 +44,8 @@ class GuessTheNumberApp:
         self.entry = tk.Entry(self.frame, font=custom_font, bd=2, relief="flat")
         self.entry.pack(pady=10)
 
+        self.entry.bind('<Return>', lambda event: self.check_guess())
+
         # Modern flat buttons with color styling and rounded corners
         self.guess_button = ttk.Button(self.frame, text="Guess", style="Rounded.TButton", command=self.check_guess)
         self.guess_button.pack(pady=5)
@@ -53,10 +55,12 @@ class GuessTheNumberApp:
 
         # Result label
         self.result_label = tk.Label(self.frame, text="", font=custom_font, fg=style.text_color, bg=style.bg_color)
-        self.result_label.pack(pady=10)
+        self.result_label.pack(pady=5)
 
         self.attempts_label = tk.Label(self.frame, text=f"Attempts: {self.attempts}/{self.max_attempts}", font=custom_font, fg=style.text_color, bg=style.bg_color)
         self.attempts_label.pack(pady=10)
+
+        self.entry.focus_set()
 
     # Method to check the player's guess
     def check_guess(self):
