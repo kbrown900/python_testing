@@ -18,6 +18,23 @@ class GuessTheNumberApp:
         master.geometry(style.window_size)
         self.frame = tk.Frame(master)
         self.frame.pack(pady=10)
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.score = 0
+
+        # Create frame style
+        self.frame = tk.Frame(master, bg=style.bg_color)
+        self.frame.pack(pady=10)
+
+        self.style.configure("CustomCombobox.TCombobox",
+                             fieldbackground=style.dropdown_bg_color,  # Background color for the entry field
+                             background=style.dropdown_bg_color,  # Background color for the dropdown list
+                             foreground=style.dropdown_text_color)  # Text color
+
+        # Create a label to display the score
+        self.score_label = tk.Label(self.frame, text=f"Score: {self.score}",
+                                    font=("Helvetica", 14), fg=style.text_color, bg=style.bg_color)
+        self.score_label.pack(pady=10)
 
         # Difficulty options
         self.difficulty_var = tk.StringVar(value="Medium")  # Default difficulty
@@ -25,7 +42,8 @@ class GuessTheNumberApp:
         self.difficulty_label.pack(pady=(0, 5))
         self.difficulty_menu = ttk.Combobox(self.frame, textvariable=self.difficulty_var, 
                                              values=["Easy", "Medium", "Hard"], 
-                                             font=style.dropdown_font)
+                                             font=style.dropdown_font,
+                                             style = "CustomCombobox.TCombobox")
         self.difficulty_menu.bind("<<ComboboxSelected>>", lambda _: self.set_difficulty())
         self.difficulty_menu.pack(pady=5)
         
@@ -106,7 +124,7 @@ class GuessTheNumberApp:
         if not guess.isdigit():
             self.result_label.config(text="Please enter a valid number.")
             return
-        
+
         guess = int(guess)
         self.attempts += 1
         self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
@@ -114,7 +132,13 @@ class GuessTheNumberApp:
         result = check_guess(guess, self.number_to_guess)
         self.result_label.config(text=result)
 
+        # Clear the input box after each guess
+        self.entry.delete(0, tk.END)
+
         if result == "Correct!":
+            points = max(100 - (self.attempts * 10),0)
+            self.score += points
+            self.score_label.config(text=f"Score: {self.score}")
             self.result_label.config(text=f"Congratulations! You've guessed the number in {self.attempts} attempts!")
             self.entry.config(state='disabled')
 
@@ -125,8 +149,8 @@ class GuessTheNumberApp:
     def reset_game(self):
         # Get the current difficulty from the dropdown
         difficulty = self.difficulty_var.get()
-
-         # Set the number range and max attempts based on the current difficulty
+        
+        # Set the number range and max attempts based on the current difficulty
         if difficulty == "Easy":
             self.number_to_guess = generate_number(1, 50)
             self.max_attempts = 10
@@ -148,6 +172,10 @@ class GuessTheNumberApp:
 
     # Optionally, you can set focus back to the entry field
         self.entry.focus_set()
+
+    #Reset Score
+        self.score = 0
+        self.score_label.config(text=f"Score: {self.score}")
 
 # Main program execution
 if __name__ == "__main__":
