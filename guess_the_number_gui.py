@@ -21,7 +21,7 @@ class GuessTheNumberApp:
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.score = 0
-        
+
         # Create frame style
         self.frame = tk.Frame(master, bg=style.bg_color)
         self.frame.pack(pady=10)
@@ -30,8 +30,6 @@ class GuessTheNumberApp:
                              fieldbackground=style.dropdown_bg_color,  # Background color for the entry field
                              background=style.dropdown_bg_color,  # Background color for the dropdown list
                              foreground=style.dropdown_text_color)  # Text color
-
-
 
         # Create a label to display the score
         self.score_label = tk.Label(self.frame, text=f"Score: {self.score}",
@@ -178,7 +176,6 @@ class GuessTheNumberApp:
     #Reset Score
         self.score = 0
         self.score_label.config(text=f"Score: {self.score}")
-
 
 # Main program execution
 if __name__ == "__main__":
