@@ -21,7 +21,7 @@ class GuessTheNumberApp:
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.score = 0
-
+        
         # Create frame style
         self.frame = tk.Frame(master, bg=style.bg_color)
         self.frame.pack(pady=10)
@@ -58,10 +58,9 @@ class GuessTheNumberApp:
         self.frame.pack(pady=20)
 
         # Initialize the game logic variables
-        self.number_to_guess = generate_number() #number to guess
+        self.number_to_guess = generate_number(self.set_difficulty) #number to guess
         self.attempts = 0 #default attempts number
-        self.max_attempts = 10 #max tries
-
+        self.max_attempts = 0
         # Create and display the label for instructions
         self.label = tk.Label(self.frame, text="Guess a number between 1 and 100:", 
                               font=custom_font, fg=style.text_color, bg=style.bg_color)
@@ -88,6 +87,10 @@ class GuessTheNumberApp:
         self.attempts_label = tk.Label(self.frame, text=f"Attempts: {self.attempts}/{self.max_attempts}", font=custom_font, fg=style.text_color, bg=style.bg_color)
         self.attempts_label.pack(pady=10)
 
+        # Game Over Label
+        self.game_over_label = tk.Label(self.frame, text="", font=("Helvetica", 16, "bold"), bg=style.bg_color)
+        self.game_over_label .pack(pady=10)
+
         #Set UI focus
         self.entry.focus_set()
 
@@ -98,24 +101,22 @@ class GuessTheNumberApp:
         difficulty = self.difficulty_var.get()
         if difficulty == "Easy":
             self.label.config(text="Guess a number between 1 and 50:")
-            self.number_to_guess = generate_number(1, 50)
-            max_num = 50
+            self.number_to_guess = generate_number("Easy")
             self.max_attempts = 10
         elif difficulty == "Medium":
             self.label.config(text="Guess a number between 1 and 100:")
-            self.number_to_guess = generate_number(1, 100)
-            max_num = 100
+            self.number_to_guess = generate_number("Medium")
             self.max_attempts = 7
         elif difficulty == "Hard":
             self.label.config(text="Guess a number between 1 and 200:")
-            self.number_to_guess = generate_number(1, 200)
-            max_num = 200
+            self.number_to_guess = generate_number("Hard")
             self.max_attempts = 5
 
         # Reset attempts and update the attempts label
         self.attempts = 0
         self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
         self.entry.focus_set()
+        self.reset_game()
 
     def check_guess(self):
         guess = self.entry.get()
@@ -123,6 +124,7 @@ class GuessTheNumberApp:
         #input check
         if not guess.isdigit():
             self.result_label.config(text="Please enter a valid number.")
+            self.entry.focus_set()
             return
 
         guess = int(guess)
@@ -136,41 +138,54 @@ class GuessTheNumberApp:
         self.entry.delete(0, tk.END)
 
         if result == "Correct!":
-            points = max(100 - (self.attempts * 10),0)
-            self.score += points
-            self.score_label.config(text=f"Score: {self.score}")
-            self.result_label.config(text=f"Congratulations! You've guessed the number in {self.attempts} attempts!")
+            self.show_game_over(f"Congratulations! You've guessed the number in {self.attempts} attempts!")
             self.entry.config(state='disabled')
 
         if self.attempts >= self.max_attempts and result != "Correct!":
-            self.result_label.config(text=f"Sorry, you've used all attempts. The number was {self.number_to_guess}.")
+            self.show_game_over(f"Sorry, you've used all attempts. The number was {self.number_to_guess}.")
             self.entry.config(state='disabled')
+    
+        # Set focus back to the entry box if the game is not over
+        if result != "Correct!" and self.attempts < self.max_attempts:
+            self.entry.focus_set()
 
+      #Displays a Game Over message on the screen.
+    def show_game_over(self, message):
+        self.game_over_label.config(
+             text=message,
+             fg=style.text_color,  
+             bg=style.bg_color     
+            )
+        self.game_over_label.pack()
+        self.entry.config(state='disabled')
+        
     def reset_game(self):
         # Get the current difficulty from the dropdown
         difficulty = self.difficulty_var.get()
         
         # Set the number range and max attempts based on the current difficulty
         if difficulty == "Easy":
-            self.number_to_guess = generate_number(1, 50)
+            self.number_to_guess = generate_number("Easy")
             self.max_attempts = 10
         elif difficulty == "Medium":
-            self.number_to_guess = generate_number(1, 100)
+            self.number_to_guess = generate_number("Medium")
             self.max_attempts = 7
         elif difficulty == "Hard":
-            self.number_to_guess = generate_number(1, 200)
+            self.number_to_guess = generate_number("Hard")
             self.max_attempts = 5
 
     # Reset attempts
         self.attempts = 0
         self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
+        self.max_attempts = 0
 
     # Clear entry box and reset result label
         self.entry.config(state='normal')
         self.entry.delete(0, tk.END)  # Clear the entry box
         self.result_label.config(text="")  # Clear the result label
+        self.game_over_label.config(text="")  # Hide the Game Over label
 
-    # Optionally, you can set focus back to the entry field
+    # Set focus back to the entry field
         self.entry.focus_set()
 
     #Reset Score
