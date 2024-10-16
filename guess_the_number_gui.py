@@ -3,6 +3,7 @@ from tkinter import font as tkfont
 from tkinter import ttk
 from game_logic import generate_number, check_guess
 import style_config as style
+from style_config import configure_combo
 
 # Declare a global variable for the custom font
 custom_font = None
@@ -19,17 +20,12 @@ class GuessTheNumberApp:
         self.frame = tk.Frame(master)
         self.frame.pack(pady=10)
         self.style = ttk.Style()
-        self.style.theme_use('clam')
+        self.style.theme_use('default')
         self.score = 0
         
         # Create frame style
         self.frame = tk.Frame(master, bg=style.bg_color)
         self.frame.pack(pady=10)
-
-        self.style.configure("CustomCombobox.TCombobox",
-                             fieldbackground=style.dropdown_bg_color,  # Background color for the entry field
-                             background=style.dropdown_bg_color,  # Background color for the dropdown list
-                             foreground=style.dropdown_text_color)  # Text color
 
         # Create a label to display the score
         self.score_label = tk.Label(self.frame, text=f"Score: {self.score}",
@@ -37,20 +33,17 @@ class GuessTheNumberApp:
         self.score_label.pack(pady=10)
 
         # Difficulty options
+        configure_combo()
         self.difficulty_var = tk.StringVar(value="Medium")  # Default difficulty
         self.difficulty_label = tk.Label(self.frame, text="Select Difficulty:", font=style.font_style, fg=style.text_color, bg=style.bg_color)
-        self.difficulty_label.pack(pady=(0, 5))
-        self.difficulty_menu = ttk.Combobox(self.frame, textvariable=self.difficulty_var, 
-                                             values=["Easy", "Medium", "Hard"], 
-                                             font=style.dropdown_font,
-                                             style = "CustomCombobox.TCombobox")
-        self.difficulty_menu.bind("<<ComboboxSelected>>", lambda _: self.set_difficulty())
-        self.difficulty_menu.pack(pady=5)
+        self.difficulty_label.pack(pady=(5, 10))
+        self.difficulty_combobox = ttk.Combobox(self.frame, textvariable=self.difficulty_var, values=["Easy", "Medium", "Hard"], state='readonly') 
+        self.difficulty_combobox.bind("<<ComboboxSelected>>", lambda _: self.set_difficulty())
+        self.difficulty_combobox.current(1)
+        self.difficulty_combobox.pack(pady=5)
         
         #Configure Style
         master.configure(bg=style.bg_color)
-        self.style = ttk.Style()
-        self.style.theme_use('default')
         style.configure_button_style(self.style)
 
         # Create a frame and apply padding
@@ -58,13 +51,14 @@ class GuessTheNumberApp:
         self.frame.pack(pady=20)
 
         # Initialize the game logic variables
-        self.number_to_guess = generate_number(self.set_difficulty) #number to guess
-        self.attempts = 0 #default attempts number
+        self.number_to_guess = generate_number(self.set_difficulty)
+        self.attempts = 0 
         self.max_attempts = 0
+
         # Create and display the label for instructions
-        self.label = tk.Label(self.frame, text="Guess a number between 1 and 100:", 
-                              font=custom_font, fg=style.text_color, bg=style.bg_color)
-        self.label.pack(pady=10)
+        self.instructions_label = tk.Label(self.frame, text="Guess a number between 1 and 100:", 
+                             font=custom_font, fg=style.text_color, bg=style.bg_color)
+        self.instructions_label.pack(pady=10)
 
         # Create and display the entry box where the player enters their guess
         self.entry = tk.Entry(self.frame, font=custom_font, bd=2, relief="flat")
@@ -100,15 +94,15 @@ class GuessTheNumberApp:
     def set_difficulty(self):
         difficulty = self.difficulty_var.get()
         if difficulty == "Easy":
-            self.label.config(text="Guess a number between 1 and 50:")
+            self.instructions_label.config(text="Guess a number between 1 and 50:")
             self.number_to_guess = generate_number("Easy")
             self.max_attempts = 10
         elif difficulty == "Medium":
-            self.label.config(text="Guess a number between 1 and 100:")
+            self.instructions_label.config(text="Guess a number between 1 and 100:")
             self.number_to_guess = generate_number("Medium")
             self.max_attempts = 7
         elif difficulty == "Hard":
-            self.label.config(text="Guess a number between 1 and 200:")
+            self.instructions_label.config(text="Guess a number between 1 and 200:")
             self.number_to_guess = generate_number("Hard")
             self.max_attempts = 5
 
@@ -116,7 +110,6 @@ class GuessTheNumberApp:
         self.attempts = 0
         self.attempts_label.config(text=f"Attempts: {self.attempts}/{self.max_attempts}")
         self.entry.focus_set()
-        self.reset_game()
 
     def check_guess(self):
         guess = self.entry.get()
@@ -149,7 +142,7 @@ class GuessTheNumberApp:
         if result != "Correct!" and self.attempts < self.max_attempts:
             self.entry.focus_set()
 
-      #Displays a Game Over message on the screen.
+    #Displays a Game Over message on the screen.
     def show_game_over(self, message):
         self.game_over_label.config(
              text=message,
@@ -158,12 +151,12 @@ class GuessTheNumberApp:
             )
         self.game_over_label.pack()
         self.entry.config(state='disabled')
-        
+
     def reset_game(self):
-        # Get the current difficulty from the dropdown
+    # Get the current difficulty from the dropdown
         difficulty = self.difficulty_var.get()
         
-        # Set the number range and max attempts based on the current difficulty
+    # Set the number range and max attempts based on the current difficulty
         if difficulty == "Easy":
             self.number_to_guess = generate_number("Easy")
             self.max_attempts = 10
