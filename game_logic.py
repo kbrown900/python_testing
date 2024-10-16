@@ -1,8 +1,13 @@
 import random
 
-def generate_number(min_value=1, max_value=100):
-    """Generate a random number between 1 and 100."""
-    return random.randint(min_value, max_value)
+def generate_number(difficulty):
+    """Generates a number based on the difficulty level."""
+    if difficulty == "Easy":
+        return random.randint(1, 10)
+    elif difficulty == "Medium":
+        return random.randint(1, 100)
+    elif difficulty == "Hard":
+        return random.randint(1, 200)
 
 def check_guess(guess, number_to_guess):
     """Check the player's guess against the number to guess."""
@@ -12,7 +17,3 @@ def check_guess(guess, number_to_guess):
         return "Too high!"
     else:
         return "Correct!"
-
-def reset_game():
-    """Reset the game state for a new game."""
-    return generate_number(), 0  # Return a new number and reset attempts
